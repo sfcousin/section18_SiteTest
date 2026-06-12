@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motions — Section 18 CoNRS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" style="text-decoration:none; color:inherit;">
+      <div class="site-title">Section 18 — CoNRS</div>
+      <div class="site-subtitle">Comité National de la Recherche Scientifique &mdash; Mandat 2025–2029</div>
+    </a>
+  </div>
+</header>
+
+<nav class="navbar navbar-expand-lg site-nav">
+  <div class="container">
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" style="color:white;">
+      <i class="bi bi-list" style="font-size:1.5rem;"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Présentation</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="membres.html"><i class="bi bi-people me-2"></i>Membres</a></li>
+            <li><a class="dropdown-item" href="calendrier.html"><i class="bi bi-calendar3 me-2"></i>Calendrier</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Fonctionnement</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="criteres.html"><i class="bi bi-clipboard-check me-2"></i>Critères d'évaluation</a></li>
+            <li><a class="dropdown-item" href="conflits.html"><i class="bi bi-shield-check me-2"></i>Conflits d'intérêt</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="sessions.html">Sessions</a></li>
+        <li class="nav-item"><a class="nav-link active" href="motions.html">Motions</a></li>
+        <li class="nav-item"><a class="nav-link" href="espace-membres.html">Espace membres</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container my-4">
+
+  <h2 class="page-heading"><i class="bi bi-check2-square me-2"></i>Motions votées</h2>
+  <p class="text-muted mb-4">
+    Cette page recense l'ensemble des motions adoptées par la Section 18 en session plénière.
+  </p>
+
+  <div id="motions-list">
+    <div class="text-muted fst-italic">Chargement…</div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-7">
+        <strong>Section 18</strong> — Comité National de la Recherche Scientifique<br>
+        <span>Site indépendant, hébergé en dehors de l'infrastructure officielle du CNRS.</span>
+      </div>
+      <div class="col-md-5 text-md-end mt-2 mt-md-0">
+        &copy; 2025–2029 Section 18 CoNRS
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function fmtDate(s) {
+  if (!s) return '';
+  return new Date(s + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+fetch('data/documents.json')
+  .then(r => r.json())
+  .then(docs => {
+    const motions = docs.filter(d => d.categorie === 'motion');
+    const el = document.getElementById('motions-list');
+    if (!motions.length) {
+      el.innerHTML = '<div class="text-muted fst-italic">Aucune motion publiée pour le moment.</div>';
+      return;
+    }
+    el.innerHTML = motions.map(d => `
+      <a href="documents/${d.filename}" target="_blank" class="doc-card motion text-decoration-none">
+        <div class="doc-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+        <div class="flex-grow-1">
+          <div class="doc-title">${d.titre}</div>
+          <div class="doc-meta">
+            ${d.date_document ? '<i class="bi bi-calendar3 me-1"></i>' + fmtDate(d.date_document) + ' &nbsp;·&nbsp; ' : ''}
+            ${d.session ? '<i class="bi bi-folder me-1"></i>' + d.session + ' &nbsp;·&nbsp; ' : ''}
+            <i class="bi bi-file me-1"></i>${d.filename}
+          </div>
+          ${d.description ? '<div class="doc-meta mt-1">' + d.description + '</div>' : ''}
+        </div>
+        <i class="bi bi-download text-muted"></i>
+      </a>`).join('');
+  });
+</script>
+</body>
+</html>

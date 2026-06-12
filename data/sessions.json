@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nom": "Session d'automne 2024",
+    "date_debut": "2024-11-18",
+    "date_fin": "2024-11-20",
+    "description": "Session plénière : recrutements et évaluations."
+  },
+  {
+    "id": 2,
+    "nom": "Session d'hiver 2025",
+    "date_debut": "2025-01-20",
+    "date_fin": "2025-01-22",
+    "description": "Session plénière : promotions."
+  }
+]

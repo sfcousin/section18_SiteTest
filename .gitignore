@@ -1,0 +1,23 @@
+# Flask / Python
+app.py
+config.py
+requirements.txt
+insert_membres.py
+section18.db
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Flask upload folder
+uploads/
+
+# Templates Jinja2
+templates/
+
+# macOS
+.DS_Store
+
+# Éditeurs
+.vscode/
+*.swp
