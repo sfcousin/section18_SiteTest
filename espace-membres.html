@@ -130,7 +130,7 @@
      console.log([...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join(''));
    Puis remplacez la valeur de PWD_HASH ci-dessous.
 ────────────────────────────────────────────────────────────────────────────── */
-const PWD_HASH = 'ec1b842d60455a721239b0f3f9d5ce296187eb774e1de4a5411f32008b85e7c8'; // "Section18-CoNRS"
+const PWD_HASH = 'ec1b842d60455a721239b0f3f9d5ce296187eb774e1de4a5411f32008b85e7c8';
 const SESSION_KEY = 's18_auth';
 
 async function sha256(str) {

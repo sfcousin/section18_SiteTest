@@ -1,0 +1,73 @@
+# Éditeur du site (Sveltia CMS) — accessible sur …/section18_SiteTest/admin/
+# Connexion avec un compte GitHub ayant les droits d'écriture sur le dépôt.
+backend:
+  name: github
+  repo: sfcousin/section18_SiteTest
+  branch: main
+  commit_messages:
+    update: "Mise à jour : {{collection}} « {{slug}} »"
+
+locale: fr
+
+# PDF joints : enregistrés dans documents/ à la racine du site
+media_folder: documents
+public_folder: documents
+
+collections:
+  - name: motions
+    label: Motions
+    description: Motions votées par la section, affichées sur la page « Motions ».
+    files:
+      - name: motions
+        label: Liste des motions
+        file: data/motions.json
+        format: json
+        fields:
+          - name: motions
+            label: Motions
+            label_singular: motion
+            widget: list
+            add_to_top: true
+            summary: "{{fields.date_vote}} — {{fields.titre}}"
+            fields:
+              - { name: titre, label: Titre, widget: string }
+              - { name: date_vote, label: Date du vote, widget: datetime, time_format: false, date_format: "DD/MM/YYYY", format: "YYYY-MM-DD" }
+              - { name: session, label: Session, widget: string, required: false, hint: "Ex : Session d'automne 2026" }
+              - { name: resultat, label: Résultat du vote, widget: string, required: false, hint: "Ex : Adoptée à l'unanimité, Adoptée (15 pour, 2 contre, 3 abstentions)" }
+              - { name: texte, label: Texte de la motion, widget: markdown, buttons: [bold, italic, link, bulleted-list, numbered-list, quote], editor_components: [] }
+              - { name: pdf, label: PDF signé (facultatif), widget: file, required: false, accept: application/pdf }
+
+  - name: sessions
+    label: Sessions
+    description: Sessions plénières, avec emploi du temps et compte rendu, affichées sur la page « Sessions ».
+    files:
+      - name: sessions
+        label: Liste des sessions
+        file: data/sessions.json
+        format: json
+        fields:
+          - name: sessions
+            label: Sessions
+            label_singular: session
+            widget: list
+            add_to_top: true
+            summary: "{{fields.date_debut}} — {{fields.nom}}"
+            fields:
+              - { name: nom, label: Nom de la session, widget: string, hint: "Ex : Session d'automne 2026" }
+              - { name: date_debut, label: Premier jour, widget: datetime, time_format: false, date_format: "DD/MM/YYYY", format: "YYYY-MM-DD" }
+              - { name: date_fin, label: Dernier jour, widget: datetime, time_format: false, date_format: "DD/MM/YYYY", format: "YYYY-MM-DD", required: false }
+              - { name: lieu, label: Lieu, widget: string, required: false }
+              - { name: description, label: Description courte, widget: string, required: false, hint: "Ex : Session plénière, concours CR et évaluations" }
+              - name: emploi_du_temps
+                label: Emploi du temps
+                label_singular: créneau
+                widget: list
+                required: false
+                summary: "{{fields.date}} {{fields.horaire}} — {{fields.activite}}"
+                fields:
+                  - { name: date, label: Jour, widget: datetime, time_format: false, date_format: "DD/MM/YYYY", format: "YYYY-MM-DD" }
+                  - { name: horaire, label: Horaire, widget: string, hint: "Ex : 9h00 – 12h30" }
+                  - { name: activite, label: Activité, widget: string }
+                  - { name: details, label: Précisions, widget: string, required: false, hint: "Salle, sous-groupe, visio…" }
+              - { name: compte_rendu, label: Compte rendu, widget: markdown, required: false, buttons: [heading-two, heading-three, bold, italic, link, bulleted-list, numbered-list, quote], editor_components: [] }
+              - { name: compte_rendu_pdf, label: Compte rendu en PDF (facultatif), widget: file, required: false, accept: application/pdf }

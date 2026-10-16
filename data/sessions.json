@@ -1,16 +1,43 @@
-[
-  {
-    "id": 1,
-    "nom": "Session d'automne 2024",
-    "date_debut": "2024-11-18",
-    "date_fin": "2024-11-20",
-    "description": "Session plénière : recrutements et évaluations."
-  },
-  {
-    "id": 2,
-    "nom": "Session d'hiver 2025",
-    "date_debut": "2025-01-20",
-    "date_fin": "2025-01-22",
-    "description": "Session plénière : promotions."
-  }
-]
+{
+  "sessions": [
+    {
+      "nom": "Session d'automne 2024",
+      "date_debut": "2024-11-18",
+      "date_fin": "2024-11-20",
+      "description": "Session plénière : recrutements et évaluations.",
+      "lieu": "",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Session d'hiver 2025",
+      "date_debut": "2025-01-20",
+      "date_fin": "2025-01-22",
+      "description": "Session plénière : promotions.",
+      "lieu": "",
+      "emploi_du_temps": [
+        {
+          "date": "2025-01-20",
+          "horaire": "9h00 – 12h30",
+          "activite": "Séance plénière d'ouverture",
+          "details": ""
+        },
+        {
+          "date": "2025-01-20",
+          "horaire": "14h00 – 18h00",
+          "activite": "Examen des dossiers de promotion",
+          "details": "Rapporteurs"
+        },
+        {
+          "date": "2025-01-21",
+          "horaire": "9h00 – 17h00",
+          "activite": "Examen des dossiers (suite)",
+          "details": ""
+        }
+      ],
+      "compte_rendu": "*Exemple de compte rendu, à remplacer depuis l'éditeur.*\n\n## Points abordés\n\n- …\n- …\n\n## Décisions\n\n…",
+      "compte_rendu_pdf": ""
+    }
+  ]
+}

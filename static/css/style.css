@@ -410,3 +410,52 @@ h1, h2, h3, h4 { color: var(--cnrs-navy); }
   .admin-sidebar { display: none; }
   .admin-content { padding: 1rem; }
 }
+
+/* ─── Rubriques (accueil) ────────────────────────────────────────────────────── */
+.rubrique {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  height: 100%;
+  padding: 1rem 1.1rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--cnrs-yellow);
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.rubrique:hover { box-shadow: 0 4px 12px rgba(22,32,80,0.12); transform: translateY(-1px); color: inherit; }
+.rubrique > i { font-size: 1.6rem; color: var(--cnrs-navy); line-height: 1; }
+.rubrique-titre { font-weight: 700; color: var(--cnrs-navy); margin-bottom: 0.2rem; }
+.rubrique-desc { font-size: 0.83rem; color: var(--text-muted); }
+.rubrique-info { font-size: 0.78rem; color: var(--cnrs-yellow-dim); font-weight: 600; margin-top: 0.35rem; }
+.rubrique-info:empty { display: none; }
+
+/* ─── Motions et comptes rendus (texte saisi dans l'éditeur) ─────────────────── */
+.motion-card {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cnrs-yellow);
+  border-radius: 6px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  scroll-margin-top: 1rem;
+}
+.motion-titre { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.3rem; }
+.texte-riche { font-size: 0.92rem; line-height: 1.6; }
+.texte-riche h2 { font-size: 1rem; font-weight: 700; margin-top: 1rem; }
+.texte-riche h3 { font-size: 0.95rem; font-weight: 600; margin-top: 0.8rem; }
+.texte-riche blockquote { border-left: 3px solid var(--border); padding-left: 0.8rem; color: var(--text-muted); }
+.texte-riche p:last-child { margin-bottom: 0; }
+
+/* ─── Emploi du temps des sessions ───────────────────────────────────────────── */
+.edt-table { font-size: 0.87rem; }
+.edt-jour th {
+  background: var(--cnrs-navy-light);
+  color: var(--cnrs-navy);
+  font-weight: 600;
+}
+.edt-jour th::first-letter { text-transform: uppercase; }
+.edt-horaire { white-space: nowrap; width: 9rem; font-variant-numeric: tabular-nums; }

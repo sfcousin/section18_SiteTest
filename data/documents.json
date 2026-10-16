@@ -1,15 +1,5 @@
 [
   {
-    "id": 1,
-    "titre": "Exemple — Motion sur les conditions d'évaluation",
-    "description": "Motion adoptée en session plénière.",
-    "filename": "exemple_motion.pdf",
-    "categorie": "motion",
-    "sous_categorie": "",
-    "date_document": "2025-01-20",
-    "session": "Session d'hiver 2025"
-  },
-  {
     "id": 2,
     "titre": "Template — Rapport de candidature CR",
     "description": "Modèle de rapport à utiliser pour l'évaluation des candidatures Chargé de Recherche.",
