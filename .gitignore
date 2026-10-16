@@ -21,3 +21,6 @@ templates/
 # Éditeurs
 .vscode/
 *.swp
+
+# Contenu privé de l espace membres (seule la version chiffrée est publiée)
+prive/
