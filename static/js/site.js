@@ -37,7 +37,7 @@ function fileUrl(p) {
 
 // Charge un fichier data/*.json ; les fichiers gérés par l'éditeur ont la forme { "cle": [ ... ] }
 function loadList(file, key) {
-  return fetch(file, { cache: 'no-cache' })
+  return fetch(file + '?v=' + Date.now(), { cache: 'no-store' })
     .then(r => r.json())
     .then(d => Array.isArray(d) ? d : (d[key] || []));
 }

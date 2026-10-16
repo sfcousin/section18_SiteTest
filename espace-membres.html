@@ -125,7 +125,7 @@ function afficher(texte) {
 }
 
 async function init() {
-  paquet = await fetch('data/espace-membres.enc.json', { cache: 'no-cache' }).then(r => r.json());
+  paquet = await fetch('data/espace-membres.enc.json?v=' + Date.now(), { cache: 'no-store' }).then(r => r.json());
   // Clé gardée le temps de l'onglet, pour ne pas retaper le mot de passe à chaque visite
   try {
     const brute = sessionStorage.getItem(CLE_SESSION);
