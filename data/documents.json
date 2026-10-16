@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": 2,
+    "titre": "Template — Rapport de candidature CR",
+    "description": "Modèle de rapport à utiliser pour l'évaluation des candidatures chargée ou chargé de recherche.",
+    "filename": "template_rapport_CR.docx",
+    "categorie": "ressource",
+    "sous_categorie": "Templates",
+    "date_document": "2025-01-01",
+    "session": ""
+  },
+  {
+    "id": 3,
+    "titre": "Consignes pour les rapporteures et rapporteurs",
+    "description": "Guide de procédure pour les membres rapporteur·es lors des sessions d'évaluation.",
+    "filename": "consignes_rapporteurs.pdf",
+    "categorie": "ressource",
+    "sous_categorie": "Consignes",
+    "date_document": "2025-01-01",
+    "session": ""
+  }
+]
