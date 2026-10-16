@@ -1,42 +1,153 @@
 {
   "sessions": [
     {
-      "nom": "Session d'automne 2024",
-      "date_debut": "2024-11-18",
-      "date_fin": "2024-11-20",
-      "description": "Session plénière : recrutements et évaluations.",
+      "nom": "Instance d'équivalence 2026",
+      "date_debut": "2026-01-29",
+      "date_fin": "",
       "lieu": "",
+      "description": "Examen des demandes d'équivalence de diplôme des candidates et candidats aux concours. L'après-midi.",
       "emploi_du_temps": [],
       "compte_rendu": "",
       "compte_rendu_pdf": ""
     },
     {
-      "nom": "Session d'hiver 2025",
-      "date_debut": "2025-01-20",
-      "date_fin": "2025-01-22",
-      "description": "Session plénière : promotions.",
+      "nom": "Jury d'admissibilité sur dossier 2026",
+      "date_debut": "2026-02-16",
+      "date_fin": "2026-02-18",
       "lieu": "",
-      "emploi_du_temps": [
-        {
-          "date": "2025-01-20",
-          "horaire": "9h00 – 12h30",
-          "activite": "Séance plénière d'ouverture",
-          "details": ""
-        },
-        {
-          "date": "2025-01-20",
-          "horaire": "14h00 – 18h00",
-          "activite": "Examen des dossiers de promotion",
-          "details": "Rapporteurs"
-        },
-        {
-          "date": "2025-01-21",
-          "horaire": "9h00 – 17h00",
-          "activite": "Examen des dossiers (suite)",
-          "details": ""
-        }
-      ],
-      "compte_rendu": "*Exemple de compte rendu, à remplacer depuis l'éditeur.*\n\n## Points abordés\n\n- …\n- …\n\n## Décisions\n\n…",
+      "description": "Jury d'admissibilité sur dossier : choix des candidates et candidats retenu·es pour l'audition.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours CR 2026 — auditions",
+      "date_debut": "2026-03-16",
+      "date_fin": "2026-03-19",
+      "lieu": "",
+      "description": "Auditions des candidates et candidats au concours de chargé·e de recherche. Jusqu'au 19 mars au matin.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours CR 2026 — délibérations",
+      "date_debut": "2026-03-19",
+      "date_fin": "2026-03-20",
+      "lieu": "",
+      "description": "Délibérations du jury d'admissibilité, concours de chargé·e de recherche. À partir du 19 mars après-midi.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours DR 2026 — auditions",
+      "date_debut": "2026-04-13",
+      "date_fin": "2026-04-15",
+      "lieu": "",
+      "description": "Auditions des candidates et candidats au concours de directrice ou directeur de recherche.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours DR 2026 — délibérations",
+      "date_debut": "2026-04-16",
+      "date_fin": "",
+      "lieu": "",
+      "description": "Délibérations du jury d'admissibilité, concours de directrice ou directeur de recherche.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Session de printemps 2026",
+      "date_debut": "2026-06-01",
+      "date_fin": "2026-06-04",
+      "lieu": "",
+      "description": "Session plénière de printemps.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Session d'automne 2026",
+      "date_debut": "2026-11-02",
+      "date_fin": "2026-11-06",
+      "lieu": "Salle Alfred Kastler",
+      "description": "Session plénière d'automne.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Instance d'équivalence 2027",
+      "date_debut": "2027-01-14",
+      "date_fin": "",
+      "lieu": "Visioconférence",
+      "description": "Examen des demandes d'équivalence de diplôme des candidates et candidats aux concours.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Jury d'admissibilité sur dossier 2027",
+      "date_debut": "2027-03-08",
+      "date_fin": "2027-03-11",
+      "lieu": "Salle Fernand Braudel",
+      "description": "Jury d'admissibilité sur dossier : choix des candidates et candidats retenu·es pour l'audition.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours DR 2027 — auditions",
+      "date_debut": "2027-03-30",
+      "date_fin": "2027-04-01",
+      "lieu": "",
+      "description": "Auditions des candidates et candidats au concours de directrice ou directeur de recherche.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours DR 2027 — délibérations",
+      "date_debut": "2027-04-02",
+      "date_fin": "",
+      "lieu": "Salle Monod",
+      "description": "Délibérations du jury d'admissibilité, concours de directrice ou directeur de recherche.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours CR 2027 — auditions",
+      "date_debut": "2027-04-19",
+      "date_fin": "2027-04-22",
+      "lieu": "",
+      "description": "Auditions des candidates et candidats au concours de chargé·e de recherche.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Concours CR 2027 — délibérations",
+      "date_debut": "2027-04-23",
+      "date_fin": "",
+      "lieu": "Salle Monod",
+      "description": "Délibérations du jury d'admissibilité, concours de chargé·e de recherche.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
+      "compte_rendu_pdf": ""
+    },
+    {
+      "nom": "Session de printemps 2027",
+      "date_debut": "2027-06-28",
+      "date_fin": "2027-07-01",
+      "lieu": "Salle Pierre Auger",
+      "description": "Session plénière de printemps.",
+      "emploi_du_temps": [],
+      "compte_rendu": "",
       "compte_rendu_pdf": ""
     }
   ]

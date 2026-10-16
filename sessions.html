@@ -53,8 +53,8 @@
 
   <h2 class="page-heading"><i class="bi bi-calendar-event me-2"></i>Sessions</h2>
   <p class="text-muted mb-4">
-    La Section 18 se réunit en session plénière plusieurs fois par an pour examiner les candidatures
-    aux concours, les promotions et les évaluations.
+    La Section 18 se réunit en session plénière deux fois par an (automne et printemps). S'y ajoutent l'instance
+    d'équivalence et les jurys des concours de chercheuses et chercheurs (admissibilité, auditions, délibérations).
   </p>
 
   <div id="sessions-list">
@@ -136,8 +136,13 @@ Promise.all([
     el.innerHTML = '<div class="text-muted fst-italic">Aucune session enregistrée pour le moment.</div>';
     return;
   }
-  sessions.sort((a, b) => (b.date_debut || '').localeCompare(a.date_debut || ''));
-  el.innerHTML = sessions.map(s => {
+  const today = new Date().toISOString().slice(0, 10);
+  const fin = s => s.date_fin || s.date_debut || '';
+  const aVenir = sessions.filter(s => fin(s) >= today)
+    .sort((a, b) => (a.date_debut || '').localeCompare(b.date_debut || ''));
+  const passees = sessions.filter(s => fin(s) < today)
+    .sort((a, b) => (b.date_debut || '').localeCompare(a.date_debut || ''));
+  const carte = s => {
     const id = slug(s.nom);
     const contenu = emploiDuTemps(s.emploi_du_temps) + compteRendu(s)
       + documentsSession(docs.filter(d => d.session === s.nom));
@@ -162,7 +167,10 @@ Promise.all([
           </div>
         </div>
       </div>`;
-  }).join('');
+  };
+  el.innerHTML =
+    (aVenir.length ? '<div class="cat-heading mt-0">À venir</div>' + aVenir.map(carte).join('') : '') +
+    (passees.length ? '<div class="cat-heading">Passées</div>' + passees.map(carte).join('') : '');
   // Ouvre directement la session visée par un lien (sessions.html#session-d-automne-2026)
   const cible = location.hash && document.getElementById('detail-' + location.hash.slice(1));
   if (cible) { cible.classList.add('show'); cible.parentElement.scrollIntoView(); }

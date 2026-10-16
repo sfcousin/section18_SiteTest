@@ -85,17 +85,24 @@ loadList('data/sessions.json', 'sessions').then(data => {
     return;
   }
   data.sort((a, b) => (a.date_debut || '').localeCompare(b.date_debut || ''));
-  el.innerHTML = data.map(s => `
+  const annee = d => { const y = +d.slice(0, 4); return +d.slice(5, 7) >= 9 ? y : y - 1; };
+  let courante = null;
+  el.innerHTML = data.map(s => {
+    const a = s.date_debut ? annee(s.date_debut) : null;
+    const titre = a !== courante ? `<div class="cat-heading">Année ${a}–${a + 1}</div>` : '';
+    courante = a;
+    return titre + `
     <div class="session-card">
       <div class="flex-grow-1">
         <div class="session-name">${esc(s.nom)}</div>
-        ${s.date_debut ? `<div class="session-dates mt-1"><i class="bi bi-calendar me-1"></i>${fmtDate(s.date_debut)}${s.date_fin ? ' — ' + fmtDate(s.date_fin) : ''}</div>` : ''}
+        ${s.date_debut ? `<div class="session-dates mt-1"><i class="bi bi-calendar me-1"></i>${fmtDate(s.date_debut)}${s.date_fin ? ' — ' + fmtDate(s.date_fin) : ''}${s.lieu ? ' &nbsp;·&nbsp; <i class="bi bi-geo-alt me-1"></i>' + esc(s.lieu) : ''}</div>` : ''}
         ${s.description ? `<div class="text-muted" style="font-size:0.84rem;margin-top:.3rem;">${esc(s.description)}</div>` : ''}
       </div>
       <a href="sessions.html#${slug(s.nom)}" class="btn btn-sm btn-cnrs flex-shrink-0">
         <i class="bi bi-folder2-open me-1"></i>Détails
       </a>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 });
 </script>
 </body>
