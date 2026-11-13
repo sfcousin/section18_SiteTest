@@ -144,11 +144,6 @@ const TYPES = {
   },
 };
 
-const MENTIONS = [
-  'Ce rapport a été établi après délibérations de la section, sous la responsabilité de son président, à partir des appréciations du rapporteur, des observations et recommandations de la section.',
-  'Les avis émis par les sections ne préjugent pas de la décision qui sera prise par la direction du CNRS.',
-];
-
 // ─── Texte saisi → blocs (paragraphes et listes) ──────────────────────────────
 // Syntaxe : ligne vide = nouveau paragraphe, « - » en début de ligne = puce,
 // **gras**, *italique*.
@@ -220,7 +215,7 @@ function corps(d) {
   finPuces();
   if (!t.sansAppreciations) {
     E.push({ genre: 'rubrique', id: 'appreciations', titre: 'Appréciations générales et recommandations de la section',
-             mentions: true, texte: d.rubriques.appreciations });
+             texte: d.rubriques.appreciations });
   }
   if (t.conclusion && d.conclusion !== '' && d.conclusion != null) {
     E.push({ genre: 'conclusion', texte: t.conclusion.phrase.replace('{}', t.conclusion.choix[d.conclusion] || '') });
@@ -356,7 +351,6 @@ function docPdf(d, logos) {
                        margin: [0, 8, 0, e.aide ? 1 : 5], headlineLevel: 1 });
         if (e.aide) contenu.push({ text: '(' + e.aide + ')', italics: true, fontSize: 9.5, color: '#444', margin: [0, 0, 0, 5] });
       }
-      if (e.mentions) MENTIONS.forEach(m => contenu.push({ text: m, italics: true, fontSize: 9.5, alignment: 'justify', margin: [0, 0, 0, 4] }));
       contenu.push(...pdfBlocs(e.texte));
     } else if (e.genre === 'puces') {
       e.items.forEach(it => contenu.push({ columns: [
@@ -502,7 +496,6 @@ function docTex(d) {
       L.push('% s18:rubrique=' + e.id);
       if (e.titre) L.push('\\rubrique{' + texEsc(e.titre) + '}');
       if (e.aide) L.push('\\aide{' + texEsc(e.aide) + '}');
-      if (e.mentions) L.push('{\\small\\itshape ' + MENTIONS.map(texEsc).join('\\par ') + '\\par} % s18:mentions');
       L.push(texBlocs(e.texte));
     } else if (e.genre === 'puces') {
       L.push('\\begin{itemize}[leftmargin=1.2em]');
@@ -603,7 +596,7 @@ function importerTex(source) {
       const [, cle, val] = repere;
       if (cle === 'rubrique') { finRubrique(); courante = val; return; }
       if (cle === 'fin') { finRubrique(); return; }
-      if (cle === 'mentions') return;
+      if (cle === 'mentions') return; // anciens fichiers qui contenaient les mentions réglementaires
       if (cle === 'champ') {
         const v = contenu.split(/(?<!\\)&/).slice(1).join('&').replace(/\\\\\s*$/, '');
         if (val === '_session') d.session = texVersTexte(v);
