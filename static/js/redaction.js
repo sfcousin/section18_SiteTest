@@ -198,8 +198,7 @@ function lignesInfos(d) {
   const t = TYPES[d.type];
   const L = [];
   if (!t.enTeteSimple) {
-    // Section et intitulé figurent déjà dans le chapeau
-    L.push(['_session', 'Session', d.session || '']);
+    // Section et intitulé figurent dans le chapeau, la session sous le titre
     if (t.objetLabel) L.push(['_objet', t.objetLabel, objetDe(d)]);
   }
   t.champs.filter(c => !c.objet).forEach(c => L.push([c.id, c.label, d.champs[c.id] ?? c.defaut ?? '']));
