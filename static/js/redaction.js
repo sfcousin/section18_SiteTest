@@ -198,12 +198,28 @@ function lignesInfos(d) {
   const L = [];
   // Section et intitulé figurent dans le chapeau ; l'objet vient en dernier
   t.champs.filter(c => !c.objet).forEach(c => {
-    if (c.calcule) L.push(['_' + c.id, c.label, ageAuRapport(d)]);
-    else if (c.type === 'date') L.push([c.id, c.label, dateLongue(d.champs[c.id])]);
-    else L.push([c.id, c.label, d.champs[c.id] ?? c.defaut ?? '']);
+    const largeur = c.long ? 2 : 1;
+    if (c.calcule) L.push(['_' + c.id, c.label, ageAuRapport(d), largeur]);
+    else if (c.type === 'date') L.push([c.id, c.label, dateLongue(d.champs[c.id]), largeur]);
+    else L.push([c.id, c.label, d.champs[c.id] ?? c.defaut ?? '', largeur]);
   });
-  if (!t.enTeteSimple && t.objetLabel) L.push(['_objet', t.objetLabel, objetDe(d)]);
+  if (!t.enTeteSimple && t.objetLabel) L.push(['_objet', t.objetLabel, objetDe(d), 1]);
   return L;
+}
+
+// Répartit les informations sur une grille de 3 colonnes (un champ long en occupe 2)
+const COLONNES = 3;
+function grilleInfos(d) {
+  const lignes = [];
+  let ligne = [], libres = COLONNES;
+  lignesInfos(d).forEach(([id, label, valeur, largeur]) => {
+    if (largeur > libres) { lignes.push(ligne); ligne = []; libres = COLONNES; }
+    ligne.push({ id, label, valeur, largeur });
+    libres -= largeur;
+    if (!libres) { lignes.push(ligne); ligne = []; libres = COLONNES; }
+  });
+  if (ligne.length) lignes.push(ligne);
+  return lignes;
 }
 
 // Suite d'éléments à imprimer, dans l'ordre du modèle
@@ -336,18 +352,31 @@ function docPdf(d, logos) {
 
   contenu.push({ text: titre, font: 'LMCaps', fontSize: 20, alignment: 'center', characterSpacing: 0.5, margin: [0, 0, 0, 18] });
 
-  // En-tête du modèle, en tableau à filets (à la manière de booktabs)
+  // Encadré d'informations sur trois colonnes : libellé en petites capitales au-dessus de la valeur
+  const corpsInfos = grilleInfos(d).map(ligne => {
+    const cellules = [];
+    ligne.forEach(c => {
+      cellules.push({ colSpan: c.largeur, stack: [
+        { text: c.label.toLowerCase(), font: 'LMCaps', fontSize: 8, color: '#5b6478' },
+        c.valeur ? { text: c.valeur, fontSize: 9.5 } : { text: '—', fontSize: 9.5, color: '#999' },
+      ] });
+      for (let i = 1; i < c.largeur; i++) cellules.push({});
+    });
+    while (cellules.length < COLONNES) cellules.push({ text: '' });
+    return cellules;
+  });
   contenu.push({
-    // Bloc d'informations compact : corps 9, interligne serré
-    table: { widths: [135, '*'], body: lignesInfos(d).map(([, l, v]) => [{ text: l, bold: true }, { text: v }]) },
+    table: { widths: Array(COLONNES).fill('*'), body: corpsInfos },
     layout: {
-      hLineWidth: (i, n) => (i === 0 || i === n.table.body.length) ? 0.8 : 0.3,
-      vLineWidth: () => 0,
-      hLineColor: (i, n) => (i === 0 || i === n.table.body.length) ? '#000' : '#bbb',
-      paddingLeft: () => 0, paddingRight: () => 6, paddingTop: () => 0.5, paddingBottom: () => 1,
+      hLineWidth: (i, n) => (i === 0 || i === n.table.body.length) ? 0.6 : 0,
+      vLineWidth: (i, n) => (i === 0 || i === n.table.widths.length) ? 0.6 : 0,
+      hLineColor: () => BLEU, vLineColor: () => BLEU,
+      fillColor: () => '#f3f5f9',
+      paddingLeft: i => i === 0 ? 10 : 6, paddingRight: () => 6,
+      paddingTop: i => i === 0 ? 7 : 3, paddingBottom: (i, n) => i === n.table.body.length - 1 ? 7 : 3,
     },
-    fontSize: 8.5, lineHeight: 1,
-    margin: [0, 0, 0, 16],
+    lineHeight: 1.05,
+    margin: [0, 0, 0, 18],
   });
 
   corps(d).forEach(e => {
@@ -458,7 +487,7 @@ function docTex(d) {
     '\\usepackage[french]{babel}',
     '\\frenchsetup{StandardLists=true}', // puces « • » comme dans les modèles
     '\\usepackage[a4paper,top=1.8cm,bottom=2.4cm,left=2.2cm,right=2.2cm,footskip=1.2cm]{geometry}',
-    '\\usepackage{lmodern,microtype,xcolor,amssymb,enumitem,array,tabularx,booktabs,colortbl,graphicx,fancyhdr,lastpage,textcomp}',
+    '\\usepackage{lmodern,microtype,xcolor,amssymb,enumitem,array,tabularx,booktabs,colortbl,graphicx,fancyhdr,lastpage,textcomp,tcolorbox}',
     '\\definecolor{cnrs}{HTML}{172B48}',
     '\\setlength{\\parindent}{0pt}',
     '\\setlength{\\parskip}{0.5em}',
@@ -471,6 +500,8 @@ function docTex(d) {
     '\\fancyfoot[R]{\\footnotesize \\thepage\\,/\\,\\pageref{LastPage}}',
     '\\newcommand{\\rubrique}[1]{\\par\\medskip{\\large\\bfseries\\color{cnrs} #1}\\par\\nopagebreak}',
     '\\newcommand{\\aide}[1]{{\\small\\itshape (#1)}\\par\\nopagebreak}',
+    '\\newlength{\\colinfo}\\setlength{\\colinfo}{0.31\\linewidth}',
+    '\\newcommand{\\info}[2]{{\\scriptsize\\color{black!60}\\textsc{#1}}\\par\\vspace{-2pt}{\\small #2}\\vspace{2pt}}',
     '\\newcommand{\\caseavis}[1]{\\ifnum#1=1 $\\boxtimes$\\else $\\square$\\fi}',
     '',
     '\\begin{document}',
@@ -487,13 +518,25 @@ function docTex(d) {
     '\\end{center}',
     '\\vspace{0.4cm}',
     '',
-    '{\\footnotesize % bloc d\'informations compact',
-    '\\setlength{\\aboverulesep}{0.2ex}\\setlength{\\belowrulesep}{0.3ex}\\renewcommand{\\arraystretch}{0.95}',
-    '\\noindent\\begin{tabularx}{\\linewidth}{@{}>{\\bfseries}p{4.6cm}X@{}}',
-    '\\toprule',
-    lignesInfos(d).map(([id, l, v]) => texEsc(l) + ' & ' + texEsc(v) + ' \\\\ % s18:champ=' + id).join('\n\\arrayrulecolor{black!25}\\midrule[0.2pt]\\arrayrulecolor{black}\n'),
-    '\\bottomrule',
-    '\\end{tabularx}}',
+    '% Encadré d\'informations sur trois colonnes',
+    '\\begin{tcolorbox}[colback=cnrs!4,colframe=cnrs,boxrule=0.5pt,arc=2pt,left=8pt,right=6pt,top=5pt,bottom=5pt]',
+    '\\setlength{\\tabcolsep}{3pt}\\renewcommand{\\arraystretch}{1}',
+    '\\begin{tabular}{@{}>{\\raggedright\\arraybackslash}p{\\colinfo}>{\\raggedright\\arraybackslash}p{\\colinfo}>{\\raggedright\\arraybackslash}p{\\colinfo}@{}}',
+    ...grilleInfos(d).map(ligne => {
+      let col = 0;
+      return ligne.map(c => {
+        const cell = '\\info{' + texEsc(c.label.toLowerCase()) + '}{' + texEsc(c.valeur) + '}';
+        const debut = col === 0, fin = col + c.largeur === COLONNES;
+        col += c.largeur;
+        // Case sur plusieurs colonnes : sa largeur inclut les espaces intercolonnes qu'elle recouvre
+        return (c.largeur > 1
+          ? '\\multicolumn{' + c.largeur + '}{' + (debut ? '@{}' : '') + '>{\\raggedright\\arraybackslash}p{\\dimexpr' + c.largeur + '\\colinfo+'
+            + 2 * (c.largeur - 1) + '\\tabcolsep}' + (fin ? '@{}' : '') + '}{' + cell + '}'
+          : cell) + ' % s18:champ=' + c.id;
+      }).join('\n&\n') + '\n\\\\';
+    }),
+    '\\end{tabular}',
+    '\\end{tcolorbox}',
     '\\vspace{0.4cm}',
     '',
   );
@@ -605,7 +648,8 @@ function importerTex(source) {
       if (cle === 'fin') { finRubrique(); return; }
       if (cle === 'mentions') return; // anciens fichiers qui contenaient les mentions réglementaires
       if (cle === 'champ') {
-        const v = contenu.split(/(?<!\\)&/).slice(1).join('&').replace(/\\\\\s*$/, '');
+        const info = contenu.match(/\\info\{(?:\\[{}]|[^{}])*\}\{((?:\\[{}]|[^{}])*)\}/);
+        const v = info ? info[1] : contenu.split(/(?<!\\)&/).slice(1).join('&').replace(/\\\\\s*$/, '');
         if (val === '_session') d.session = texVersTexte(v);
         else if (val === '_objet') d.champs.objet_libre = texVersTexte(v);
         else if (val === 'naissance') d.champs.naissance = dateIso(texVersTexte(v));
