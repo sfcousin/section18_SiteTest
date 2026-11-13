@@ -124,7 +124,7 @@ const TYPES = {
     nom: 'École thématique',
     titreDocument: 'École thématique — Évaluation scientifique',
     enTeteSimple: true, // la fiche n'a ni session ni intitulé de section
-    champs: [{ id: 'section', label: 'Section', defaut: '18' }, { id: 'numero', label: 'N° ET' },
+    champs: [{ id: 'numero', label: 'N° ET' },
              { id: 'titre_et', label: "Titre de l'école", long: true }],
     rubriques: [
       { id: 'enjeux', titre: "Les enjeux stratégiques, les objectifs scientifiques de ce projet d'ET sont-ils pertinents ?", consigne: SI_OUI_SI_NON },
@@ -198,9 +198,8 @@ function lignesInfos(d) {
   const t = TYPES[d.type];
   const L = [];
   if (!t.enTeteSimple) {
-    L.push(['_section', 'Section du Comité national', '18'],
-           ['_session', 'Session', d.session || ''],
-           ['_intitule', 'Intitulé de la section', 'Chimie et vivant']);
+    // Section et intitulé figurent déjà dans le chapeau
+    L.push(['_session', 'Session', d.session || '']);
     if (t.objetLabel) L.push(['_objet', t.objetLabel, objetDe(d)]);
   }
   t.champs.filter(c => !c.objet).forEach(c => L.push([c.id, c.label, d.champs[c.id] ?? c.defaut ?? '']));
