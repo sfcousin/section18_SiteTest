@@ -10,7 +10,11 @@
 // Conclusion : phrase du modèle dont on choisit le terme (« la section émet un avis … »).
 
 const NOM_CHERCHEUR = { id: 'personne', label: 'Nom, prénom et affectation du chercheur', long: true };
-const AGE = { id: 'age', label: 'Âge' };
+// Rapports sur un chercheur : identité, date de naissance et âge calculé, unité séparée du nom
+const NOM = { id: 'personne', label: 'Nom et prénom', long: true };
+const NAISSANCE = { id: 'naissance', label: 'Date de naissance', type: 'date' };
+const AGE = { id: 'age', label: 'Âge', calcule: true };
+const UMR = { id: 'umr', label: 'Unité (UMR)', long: true };
 const GRADE = { id: 'grade', label: 'Grade' };
 const ANCIENNETE = { id: 'anciennete', label: 'Ancienneté dans le grade' };
 const DIRECTION = { id: 'unite', label: "Code, intitulé et nom du directeur de l'unité (et éventuels DU adjoint(s))", long: true };
@@ -40,7 +44,7 @@ const TYPES = {
     nom: 'Évaluation à vagues ou mi-vagues',
     objetLabel: "Objet de l'évaluation",
     objet: 'Évaluation à vagues ou mi-vagues',
-    champs: [NOM_CHERCHEUR, AGE, GRADE, ANCIENNETE],
+    champs: [NOM, NAISSANCE, AGE, GRADE, ANCIENNETE, UMR],
     rubriques: [
       ...RUBRIQUES_CHERCHEUR,
       { id: 'resume', consigne: 'Résumé (à lire) en une dizaine de lignes des thématiques et des activités/réalisations des 2,5 années précédentes' },
@@ -54,14 +58,14 @@ const TYPES = {
     nom: 'Demande de promotion',
     objetLabel: "Objet de l'évaluation",
     objet: 'Demande de promotion',
-    champs: [{ id: 'grade_vise', label: 'Accès au grade de' }, NOM_CHERCHEUR, AGE, GRADE, ANCIENNETE],
+    champs: [NOM, NAISSANCE, AGE, GRADE, ANCIENNETE, { id: 'grade_vise', label: 'Accès au grade de' }, UMR],
     rubriques: RUBRIQUES_CHERCHEUR,
   },
   titularisation: {
     nom: 'Titularisation',
     objetLabel: "Objet de l'évaluation",
     objet: 'Titularisation',
-    champs: [NOM_CHERCHEUR, AGE, GRADE, { id: 'recrutement', label: 'Date de recrutement' }],
+    champs: [NOM, NAISSANCE, AGE, GRADE, { id: 'recrutement', label: 'Date de recrutement' }, UMR],
     rubriques: [
       { id: 'carriere', titre: 'Résumé de carrière, thèmes de recherche et projets' },
       { id: 'realisations', titre: 'Réalisations depuis le recrutement' },
@@ -192,11 +196,13 @@ function objetDe(d) {
 function lignesInfos(d) {
   const t = TYPES[d.type];
   const L = [];
-  if (!t.enTeteSimple) {
-    // Section et intitulé figurent dans le chapeau, la session sous le titre
-    if (t.objetLabel) L.push(['_objet', t.objetLabel, objetDe(d)]);
-  }
-  t.champs.filter(c => !c.objet).forEach(c => L.push([c.id, c.label, d.champs[c.id] ?? c.defaut ?? '']));
+  // Section et intitulé figurent dans le chapeau ; l'objet vient en dernier
+  t.champs.filter(c => !c.objet).forEach(c => {
+    if (c.calcule) L.push(['_' + c.id, c.label, ageAuRapport(d)]);
+    else if (c.type === 'date') L.push([c.id, c.label, dateLongue(d.champs[c.id])]);
+    else L.push([c.id, c.label, d.champs[c.id] ?? c.defaut ?? '']);
+  });
+  if (!t.enTeteSimple && t.objetLabel) L.push(['_objet', t.objetLabel, objetDe(d)]);
   return L;
 }
 
@@ -328,9 +334,7 @@ function docPdf(d, logos) {
   });
   contenu.push(filet(0.5, [0, 10, 0, 22]));
 
-  contenu.push({ text: titre, font: 'LMCaps', fontSize: 20, alignment: 'center', characterSpacing: 0.5,
-                 margin: [0, 0, 0, t.enTeteSimple ? 18 : 0] });
-  if (!t.enTeteSimple) contenu.push({ text: d.session || '', italics: true, fontSize: 12, alignment: 'center', margin: [0, 4, 0, 18] });
+  contenu.push({ text: titre, font: 'LMCaps', fontSize: 20, alignment: 'center', characterSpacing: 0.5, margin: [0, 0, 0, 18] });
 
   // En-tête du modèle, en tableau à filets (à la manière de booktabs)
   contenu.push({
@@ -475,9 +479,8 @@ function docTex(d) {
     '\\par\\vspace{6pt}\\hrule\\vspace{1.2cm}',
     '',
     '\\begin{center}',
-    '  {\\LARGE\\scshape ' + texEsc(titre) + '}' + (t.enTeteSimple ? '' : '\\\\[4pt]'),
+    '  {\\LARGE\\scshape ' + texEsc(titre) + '}',
   ];
-  if (!t.enTeteSimple) L.push('  {\\large\\itshape ' + texEsc(d.session) + '} % s18:session');
   L.push(
     '\\end{center}',
     '\\vspace{0.4cm}',
@@ -601,17 +604,13 @@ function importerTex(source) {
         const v = contenu.split(/(?<!\\)&/).slice(1).join('&').replace(/\\\\\s*$/, '');
         if (val === '_session') d.session = texVersTexte(v);
         else if (val === '_objet') d.champs.objet_libre = texVersTexte(v);
+        else if (val === 'naissance') d.champs.naissance = dateIso(texVersTexte(v));
         else if (!val.startsWith('_')) d.champs[val] = texVersTexte(v);
         return;
       }
       if (cle === 'session') { d.session = texVersTexte(contenu.replace(/^\{\\large\\itshape\s*/, '').replace(/\}$/, '')); return; }
       if (cle === 'conclusion') { d.conclusion = val; return; }
-      if (cle === 'date') {
-        const m = texVersTexte(contenu).match(/(\d{1,2})(?:er)?\s+(\S+)\s+(\d{4})/);
-        const mois = m ? MOIS.indexOf(m[2].toLowerCase()) : -1;
-        if (mois >= 0) d.date = m[3] + '-' + String(mois + 1).padStart(2, '0') + '-' + m[1].padStart(2, '0');
-        return;
-      }
+      if (cle === 'date') { const iso = dateIso(texVersTexte(contenu)); if (iso) d.date = iso; return; }
       if (cle === 'signataire') { d.signataire = texVersTexte(contenu.replace(/\\\\$/, '')).replace(/^\*\*|\*\*$/g, ''); return; }
       if (cle === 'qualite') { d.qualite = texVersTexte(contenu); return; }
       if (cle === 'avis') { if (/\\caseavis\{1\}/.test(contenu)) d.avis = val; return; }
@@ -624,6 +623,23 @@ function importerTex(source) {
 }
 
 // ─── Utilitaires ──────────────────────────────────────────────────────────────
+
+// Âge en années révolues à la date du rapport (ou aujourd'hui)
+function ageAuRapport(d) {
+  const n = d.champs.naissance;
+  if (!n) return '';
+  const ref = d.date || new Date().toISOString().slice(0, 10);
+  let age = +ref.slice(0, 4) - +n.slice(0, 4);
+  if (ref.slice(5) < n.slice(5)) age--;
+  return age >= 0 ? age + ' ans' : '';
+}
+
+// « 6 novembre 2026 » → « 2026-11-06 »
+function dateIso(texte) {
+  const m = String(texte || '').match(/(\d{1,2})(?:er)?\s+(\S+)\s+(\d{4})/);
+  const mois = m ? MOIS.indexOf(m[2].toLowerCase()) : -1;
+  return mois >= 0 ? m[3] + '-' + String(mois + 1).padStart(2, '0') + '-' + m[1].padStart(2, '0') : '';
+}
 
 function dateLongue(s) {
   if (!s) return '';

@@ -7,7 +7,7 @@ const $ = id => document.getElementById(id);
 
 function brouillonVide() {
   return {
-    type: 'vague', session: '', date: new Date().toISOString().slice(0, 10),
+    type: 'vague', date: new Date().toISOString().slice(0, 10),
     signataire: SIGNATAIRE, qualite: QUALITE,
     champs: {}, rubriques: {}, avis: '', conclusion: '',
   };
@@ -50,14 +50,16 @@ function radios(nom, question, options, valeur) {
 function construire() {
   const t = TYPES[d.type];
 
-  $('col-session').hidden = !!t.enTeteSimple;
   $('bloc-signature').hidden = !!t.sansSignature;
 
   $('champs').innerHTML = t.champs.map(c => `
     <div class="${c.long ? 'col-12' : 'col-md-4'}">
       <label class="form-label fw-semibold" for="c-${c.id}">${esc(c.label)}</label>
-      <input class="form-control" id="c-${c.id}" data-champ="${c.id}" value="${esc(d.champs[c.id] ?? c.defaut ?? '')}">
+      ${c.calcule
+        ? `<input class="form-control" id="c-${c.id}" readonly tabindex="-1" placeholder="calculé d'après la date de naissance">`
+        : `<input class="form-control" id="c-${c.id}" data-champ="${c.id}" type="${c.type || 'text'}" value="${esc(d.champs[c.id] ?? c.defaut ?? '')}">`}
     </div>`).join('');
+  majAge();
 
   let html = '';
   t.rubriques.forEach(r => {
@@ -76,8 +78,14 @@ function construire() {
     ? radios('avis', [t.avis.titre, t.avis.question].filter(Boolean).join(' — '), t.avis.options, d.avis) : '';
 }
 
+// Âge recalculé à partir de la date de naissance et de la date du rapport
+function majAge() {
+  const el = $('c-age');
+  if (el) el.value = ageAuRapport(d);
+}
+
 function remplirEnTete() {
-  ['type', 'session', 'date', 'signataire', 'qualite'].forEach(k => { $(k).value = d[k] || ''; });
+  ['type', 'date', 'signataire', 'qualite'].forEach(k => { $(k).value = d[k] || ''; });
 }
 
 // Valeurs par défaut des champs du type choisi (ex. « Président de la section » pour un GDR)
@@ -94,12 +102,6 @@ appliquerDefauts();
 remplirEnTete();
 construire();
 
-loadList('data/sessions.json', 'sessions').then(sessions => {
-  $('liste-sessions').innerHTML = sessions
-    .filter(s => /^Session/.test(s.nom))
-    .map(s => `<option value="${esc(s.nom)}">`).join('');
-}).catch(() => {});
-
 // Saisie : tout est recopié dans le brouillon, enregistré une demi-seconde après la dernière frappe
 let minuteur = null;
 $('form-rapport').addEventListener('input', e => {
@@ -108,6 +110,7 @@ $('form-rapport').addEventListener('input', e => {
   else if (el.dataset.rubrique) d.rubriques[el.dataset.rubrique] = el.value;
   else if (el.name === 'avis' || el.name === 'conclusion') d[el.name] = el.value;
   else if (el.id in d) d[el.id] = el.value;
+  if (el.dataset.champ === 'naissance' || el.id === 'date') majAge();
   if (el.id === 'type') {
     d.avis = ''; d.conclusion = '';
     appliquerDefauts(); remplirEnTete(); construire();
