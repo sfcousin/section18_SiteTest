@@ -338,13 +338,15 @@ function docPdf(d, logos) {
 
   // En-tête du modèle, en tableau à filets (à la manière de booktabs)
   contenu.push({
-    table: { widths: [165, '*'], body: lignesInfos(d).map(([, l, v]) => [{ text: l, bold: true }, { text: v }]) },
+    // Bloc d'informations compact : corps 9, interligne serré
+    table: { widths: [135, '*'], body: lignesInfos(d).map(([, l, v]) => [{ text: l, bold: true }, { text: v }]) },
     layout: {
       hLineWidth: (i, n) => (i === 0 || i === n.table.body.length) ? 0.8 : 0.3,
       vLineWidth: () => 0,
       hLineColor: (i, n) => (i === 0 || i === n.table.body.length) ? '#000' : '#bbb',
-      paddingLeft: () => 0, paddingRight: () => 6, paddingTop: () => 3.5, paddingBottom: () => 3.5,
+      paddingLeft: () => 0, paddingRight: () => 6, paddingTop: () => 0.5, paddingBottom: () => 1,
     },
+    fontSize: 8.5, lineHeight: 1,
     margin: [0, 0, 0, 16],
   });
 
@@ -485,11 +487,13 @@ function docTex(d) {
     '\\end{center}',
     '\\vspace{0.4cm}',
     '',
-    '\\noindent\\begin{tabularx}{\\linewidth}{@{}>{\\bfseries}p{5.6cm}X@{}}',
+    '{\\footnotesize % bloc d\'informations compact',
+    '\\setlength{\\aboverulesep}{0.2ex}\\setlength{\\belowrulesep}{0.3ex}\\renewcommand{\\arraystretch}{0.95}',
+    '\\noindent\\begin{tabularx}{\\linewidth}{@{}>{\\bfseries}p{4.6cm}X@{}}',
     '\\toprule',
     lignesInfos(d).map(([id, l, v]) => texEsc(l) + ' & ' + texEsc(v) + ' \\\\ % s18:champ=' + id).join('\n\\arrayrulecolor{black!25}\\midrule[0.2pt]\\arrayrulecolor{black}\n'),
     '\\bottomrule',
-    '\\end{tabularx}',
+    '\\end{tabularx}}',
     '\\vspace{0.4cm}',
     '',
   );
