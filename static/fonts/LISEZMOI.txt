@@ -1,0 +1,3 @@
+Polices Latin Modern (lmroman10, lmromancaps10), copiées depuis TeX Live.
+Licence : GUST Font License (GFL), redistribution libre — https://www.gust.org.pl/projects/e-foundry/latin-modern
+Utilisées pour les rapports PDF générés dans le navigateur (static/js/redaction.js).
