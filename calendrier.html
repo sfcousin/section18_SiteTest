@@ -7,14 +7,15 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="static/css/style.css" rel="stylesheet">
+  <script src="static/js/theme.js"></script>
 </head>
 <body>
 
 <header class="site-header">
   <div class="container">
     <a href="index.html" style="text-decoration:none; color:inherit;">
-      <div class="site-title">Section 18 — CoNRS</div>
-      <div class="site-subtitle">Comité National de la Recherche Scientifique &mdash; Mandat 2025–2029</div>
+      <div class="site-title">Section 18 — Chimie et vivant</div>
+      <div class="site-subtitle">Comité national de la recherche scientifique (CoNRS) &mdash; Mandat 2025–2029</div>
     </a>
   </div>
 </header>
@@ -24,6 +25,7 @@
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" style="color:white;">
       <i class="bi bi-list" style="font-size:1.5rem;"></i>
     </button>
+    <button id="btn-theme" class="btn-theme ms-auto order-lg-last" type="button"></button>
     <div class="collapse navbar-collapse" id="mainNav">
       <ul class="navbar-nav">
         <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
@@ -51,10 +53,32 @@
 
 <main class="container my-4">
 
-  <h2 class="page-heading"><i class="bi bi-calendar3 me-2"></i>Calendrier des sessions</h2>
+  <h2 class="page-heading"><i class="bi bi-calendar3 me-2"></i>Calendrier de la section</h2>
 
-  <div id="calendrier-list">
-    <div class="text-muted fst-italic">Chargement…</div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="cal-barre">
+        <button class="cal-nav" id="cal-prec" type="button" aria-label="Mois précédent"><i class="bi bi-chevron-left"></i></button>
+        <button class="cal-nav" id="cal-suiv" type="button" aria-label="Mois suivant"><i class="bi bi-chevron-right"></i></button>
+        <div class="cal-mois" id="cal-mois" aria-live="polite"></div>
+        <button class="btn btn-sm btn-outline-secondary cal-auj ms-auto" id="cal-auj" type="button">Aujourd'hui</button>
+      </div>
+      <div class="cal-grille" id="cal-grille" role="grid"></div>
+      <div class="cal-legende">
+        <span class="session">Session plénière</span>
+        <span class="concours">Concours (auditions, délibérations)</span>
+        <span class="jury">Jury et instance</span>
+      </div>
+
+      <div class="cat-heading" id="titre-mois">Ce mois-ci</div>
+      <ul class="ensuite" id="liste-mois"></ul>
+    </div>
+
+    <div class="col-lg-4">
+      <div id="prochain"></div>
+      <div class="cat-heading">Ensuite</div>
+      <ul class="ensuite" id="ensuite"></ul>
+    </div>
   </div>
 
 </main>
@@ -78,31 +102,127 @@
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <script src="static/js/site.js"></script>
 <script>
-loadList('data/sessions.json', 'sessions').then(data => {
-  const el = document.getElementById('calendrier-list');
-  if (!data.length) {
-    el.innerHTML = '<div class="text-muted fst-italic">Aucune session enregistrée pour le moment.</div>';
+// ─── Calendrier mensuel : événements de data/sessions.json ────────────────────
+const MOIS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const JOURS_FR = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const auj = iso(new Date());
+
+function categorie(ev) {
+  if (/^session/i.test(ev.nom)) return 'session';
+  if (/concours/i.test(ev.nom)) return 'concours';
+  return 'jury';
+}
+const fin = ev => ev.date_fin || ev.date_debut;
+const periode = ev => fmtDate(ev.date_debut) + (ev.date_fin && ev.date_fin !== ev.date_debut ? ' — ' + fmtDate(ev.date_fin) : '');
+
+let evenements = [];
+let courant = new Date(); courant.setDate(1);
+
+function afficherMois() {
+  const y = courant.getFullYear(), m = courant.getMonth();
+  document.getElementById('cal-mois').textContent = MOIS_FR[m] + ' ' + y;
+  history.replaceState(null, '', '#' + y + '-' + pad(m + 1));
+
+  // Grille du lundi précédant le 1er au dimanche suivant le dernier jour
+  const premier = new Date(y, m, 1);
+  const debut = new Date(y, m, 1 - ((premier.getDay() + 6) % 7));
+  const dernier = new Date(y, m + 1, 0);
+  const finGrille = new Date(y, m + 1, 0 + (7 - ((dernier.getDay() + 6) % 7)) - 1);
+
+  let html = JOURS_FR.map(j => `<div class="cal-entete">${j}</div>`).join('');
+  for (let d = new Date(debut); d <= finGrille; d.setDate(d.getDate() + 1)) {
+    const jour = iso(d);
+    const classes = ['cal-jour'];
+    if (d.getMonth() !== m) classes.push('hors-mois');
+    if (d.getDay() === 0 || d.getDay() === 6) classes.push('weekend');
+    if (jour === auj) classes.push('aujourdhui');
+    const lundi = d.getDay() === 1;
+    const evs = evenements.filter(ev => ev.date_debut <= jour && jour <= fin(ev));
+    html += `<div class="${classes.join(' ')}" role="gridcell">
+      <span class="cal-num">${d.getDate()}</span>
+      ${evs.map(ev => {
+        // Sur plusieurs jours : le libellé n'apparaît qu'au premier jour et chaque lundi
+        const suite = jour !== ev.date_debut && !lundi;
+        // Barre étirée jusqu'à la fin de l'événement ou de la semaine (dimanche)
+        let n = 1;
+        if (!suite) {
+          const j = new Date(d);
+          while (j.getDay() !== 0) { j.setDate(j.getDate() + 1); if (iso(j) > fin(ev)) break; n++; }
+        }
+        const largeur = n > 1 ? ` style="width: calc(${n} * 100% + ${n - 1} * (0.6rem + 1px))"` : '';
+        return `<a class="cal-ev ${categorie(ev)}${suite ? ' suite' : ''}${n > 1 ? ' etire' : ''}"${largeur} href="sessions.html#${slug(ev.nom)}"
+                   title="${esc(ev.nom + ' — ' + periode(ev) + (ev.lieu ? ' — ' + ev.lieu : ''))}">${esc(ev.nom)}</a>`;
+      }).join('')}
+    </div>`;
+  }
+  document.getElementById('cal-grille').innerHTML = html;
+
+  // Liste des événements qui touchent le mois affiché
+  const debutMois = iso(premier), finMois = iso(dernier);
+  const duMois = evenements.filter(ev => ev.date_debut <= finMois && fin(ev) >= debutMois);
+  document.getElementById('titre-mois').textContent = 'En ' + MOIS_FR[m] + ' ' + y;
+  document.getElementById('liste-mois').innerHTML = duMois.length
+    ? duMois.map(ligneEvenement).join('')
+    : '<li class="text-muted">Aucun événement de la section ce mois-ci.</li>';
+}
+
+function ligneEvenement(ev) {
+  return `<li><span class="puce ${categorie(ev)}"></span><a href="sessions.html#${slug(ev.nom)}">${esc(ev.nom)}</a>
+    <div class="text-muted small ms-3">${periode(ev)}${ev.lieu ? ' · ' + esc(ev.lieu) : ''}</div></li>`;
+}
+
+function afficherProchain() {
+  const futurs = evenements.filter(ev => fin(ev) >= auj);
+  const el = document.getElementById('prochain');
+  if (!futurs.length) {
+    el.innerHTML = '<div class="prochain"><div class="prochain-etiquette">Prochain événement</div><p class="text-muted mb-0 mt-2">Aucun événement à venir pour le moment.</p></div>';
+    document.getElementById('ensuite').innerHTML = '';
     return;
   }
-  data.sort((a, b) => (a.date_debut || '').localeCompare(b.date_debut || ''));
-  const annee = d => { const y = +d.slice(0, 4); return +d.slice(5, 7) >= 9 ? y : y - 1; };
-  let courante = null;
-  el.innerHTML = data.map(s => {
-    const a = s.date_debut ? annee(s.date_debut) : null;
-    const titre = a !== courante ? `<div class="cat-heading">Année ${a}–${a + 1}</div>` : '';
-    courante = a;
-    return titre + `
-    <div class="session-card">
-      <div class="flex-grow-1">
-        <div class="session-name">${esc(s.nom)}</div>
-        ${s.date_debut ? `<div class="session-dates mt-1"><i class="bi bi-calendar me-1"></i>${fmtDate(s.date_debut)}${s.date_fin ? ' — ' + fmtDate(s.date_fin) : ''}${s.lieu ? ' &nbsp;·&nbsp; <i class="bi bi-geo-alt me-1"></i>' + esc(s.lieu) : ''}</div>` : ''}
-        ${s.description ? `<div class="text-muted" style="font-size:0.84rem;margin-top:.3rem;">${esc(s.description)}</div>` : ''}
+  const ev = futurs[0];
+  const jours = Math.round((new Date(ev.date_debut + 'T00:00:00') - new Date(auj + 'T00:00:00')) / 86400000);
+  const compte = jours <= 0 ? 'En cours' : jours === 1 ? 'Demain' : 'Dans ' + jours + ' jours';
+  el.innerHTML = `
+    <div class="prochain ${categorie(ev)}">
+      <div class="prochain-etiquette">Prochain événement</div>
+      <div class="prochain-nom">${esc(ev.nom)}</div>
+      <span class="prochain-compte">${compte}</span>
+      <div class="small"><i class="bi bi-calendar-event me-1"></i>${periode(ev)}</div>
+      ${ev.lieu ? `<div class="small"><i class="bi bi-geo-alt me-1"></i>${esc(ev.lieu)}</div>` : ''}
+      ${ev.description ? `<div class="small text-muted mt-2">${esc(ev.description)}</div>` : ''}
+      <div class="d-flex gap-2 mt-3">
+        <a class="btn btn-sm btn-cnrs" href="sessions.html#${slug(ev.nom)}">Détails</a>
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="voir-prochain">Voir dans le calendrier</button>
       </div>
-      <a href="sessions.html#${slug(s.nom)}" class="btn btn-sm btn-cnrs flex-shrink-0">
-        <i class="bi bi-folder2-open me-1"></i>Détails
-      </a>
     </div>`;
-  }).join('');
+  document.getElementById('voir-prochain').addEventListener('click', () => {
+    courant = new Date(+ev.date_debut.slice(0, 4), +ev.date_debut.slice(5, 7) - 1, 1);
+    afficherMois();
+  });
+  document.getElementById('ensuite').innerHTML = futurs.slice(1, 6).map(ligneEvenement).join('')
+    || '<li class="text-muted">Rien d\'autre de prévu pour le moment.</li>';
+}
+
+document.getElementById('cal-prec').addEventListener('click', () => { courant.setMonth(courant.getMonth() - 1); afficherMois(); });
+document.getElementById('cal-suiv').addEventListener('click', () => { courant.setMonth(courant.getMonth() + 1); afficherMois(); });
+document.getElementById('cal-auj').addEventListener('click', () => { courant = new Date(); courant.setDate(1); afficherMois(); });
+document.addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea, select')) return;
+  if (e.key === 'ArrowLeft') document.getElementById('cal-prec').click();
+  if (e.key === 'ArrowRight') document.getElementById('cal-suiv').click();
+});
+
+// Mois demandé dans l'adresse (calendrier.html#2027-03), sinon le mois en cours
+const demande = location.hash.match(/^#(\d{4})-(\d{2})$/);
+if (demande) courant = new Date(+demande[1], +demande[2] - 1, 1);
+
+loadList('data/sessions.json', 'sessions').then(data => {
+  evenements = data.filter(ev => ev.date_debut)
+    .sort((a, b) => a.date_debut.localeCompare(b.date_debut) || a.nom.localeCompare(b.nom));
+  afficherMois();
+  afficherProchain();
 });
 </script>
 </body>
