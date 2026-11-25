@@ -1,93 +1,203 @@
-% Modèle de rapport d'activité — évaluation à mi-vague (CNRS, Comité national).
+% ─────────────────────────────────────────────────────────────────────────────
+% Modèle de rapport d'activité — Évaluation à mi-vague (CNRS, Comité national)
 % Plan et consignes : « Recommandations pour la rédaction du dossier d'évaluation de l'activité des chercheurs et des chercheuses du CNRS », SGCN / DRH, novembre 2025.
-% Remplacer les \consigne{…} par votre texte, puis compiler avec pdflatex (ou Overleaf).
+% Compiler avec pdflatex (ou Overleaf). Complétez d'abord le bloc « À COMPLÉTER ».
+% ─────────────────────────────────────────────────────────────────────────────
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \frenchsetup{StandardLists=true}
-\usepackage[a4paper,margin=2cm]{geometry}
-\usepackage{helvet}            % Arial ou équivalent, comme demandé
-\renewcommand{\familydefault}{\sfdefault}
-\usepackage{xcolor,enumitem,titlesec,hyperref}
+\usepackage[a4paper,top=2.3cm,bottom=2.2cm,left=2.1cm,right=2.1cm,headheight=14pt]{geometry}
+
+% Police à empattement classique de LaTeX (Latin Modern), plus confortable à la lecture.
+\usepackage{lmodern}
+% Les consignes officielles demandent « Arial 10 » : pour s'y conformer strictement,
+% remplacer la ligne ci-dessus par les deux suivantes.
+% \usepackage[scaled=0.95]{helvet}
+% \renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{microtype,xcolor,enumitem,titlesec,fancyhdr,lastpage,tabularx,comment}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+% ═══ À COMPLÉTER ═══════════════════════════════════════════════════════════
+\newcommand{\Nom}{Prénom NOM}
+\newcommand{\Grade}{CRCN}
+\newcommand{\Unite}{UMR 0000 --- Nom du laboratoire}
+\newcommand{\SectionCN}{Section 18 --- Chimie et vivant}
+\newcommand{\Periode}{semestre 20.. --- semestre 20..}
+
+% Consignes officielles (encadrés gris) : \consignestrue pour les afficher,
+% \consignesfalse pour les masquer une fois le rapport rédigé.
+\newif\ifconsignes
+\consignestrue
+% ═══════════════════════════════════════════════════════════════════════════
+
 \definecolor{cnrs}{HTML}{22397F}
-\definecolor{consigne}{HTML}{6B7280}
+\definecolor{cnrsclair}{HTML}{EEF1FA}
+\definecolor{gris}{HTML}{6B7280}
+\hypersetup{colorlinks, linkcolor=cnrs, urlcolor=cnrs, pdftitle={Rapport d'activité}}
+
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.4em}
-\setlist{topsep=2pt,itemsep=1pt}
-\titleformat{\section}{\large\bfseries\color{cnrs}}{\thesection.}{0.5em}{}
+\setlength{\parskip}{0.45em}
+\setlist{topsep=2pt,itemsep=1pt,leftmargin=1.3em}
+
+% Intertitres : numéro en pastille, filet léger dessous
+\titleformat{\section}{\large\bfseries\color{cnrs}}
+  {\colorbox{cnrs}{\makebox[0.9em]{\color{white}\thesection}}}{0.6em}{}
+  [{\color{cnrs!25}\titlerule[0.6pt]}]
+\titlespacing*{\section}{0pt}{1.5em}{0.5em}
 \titleformat{\subsection}{\normalsize\bfseries\color{cnrs}}{}{0em}{}
-\newcommand{\consigne}[1]{{\color{consigne}\itshape #1}}
+\titlespacing*{\subsection}{0pt}{1em}{0.3em}
+
+% En-tête et pied de page
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gris}Rapport d'activité --- \Nom}
+\fancyhead[R]{\small\color{gris}Évaluation à mi-vague}
+\fancyfoot[C]{\small\color{gris}\thepage\,/\,\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\headrule}{{\color{gris!40}\hrule width\headwidth height\headrulewidth}}
+
+% Consignes : encadré gris, ou rien du tout avec \consignesfalse
+\ifconsignes
+  \newtcolorbox{consigne}{enhanced, breakable, sharp corners, boxrule=0pt,
+    colback=gris!7, borderline west={2pt}{0pt}{cnrs!45},
+    left=8pt, right=6pt, top=4pt, bottom=4pt, before skip=4pt, after skip=8pt,
+    fontupper=\small\itshape\color{gris!90!black}}
+\else
+  \excludecomment{consigne}
+\fi
+
+% Emplacement de votre texte
+\newcommand{\arediger}{\textcolor{gris}{[À rédiger]}}
+
+% Production scientifique : \production{référence}{lien HAL}{portée, impact, contribution}
+\newcounter{production}
+\newcommand{\production}[3]{%
+  \refstepcounter{production}%
+  \begin{tcolorbox}[enhanced, breakable, arc=2pt, boxrule=0.4pt, colframe=cnrs!25, colback=white,
+      left=7pt, right=7pt, top=4pt, bottom=5pt, before skip=4pt, after skip=6pt]
+    {\bfseries\color{cnrs}\theproduction.}~#1\par
+    {\small\url{#2}}\par\smallskip
+    #3
+  \end{tcolorbox}}
 
 \begin{document}
 
-{\LARGE\bfseries\color{cnrs} Rapport d'activité --- évaluation à mi-vague}\par\medskip
-\textbf{Nom, prénom :} …\par
-\textbf{Grade :} …\par
-\textbf{Unité (UMR) :} …\par
-\textbf{Section(s) / CID :} …\par
-\textbf{Période de référence :} …\par\medskip
-\consigne{Période de référence : les 5 derniers semestres, indiquée dans le courriel d'ouverture de la campagne d'évaluation. Mise en forme : Arial 10, interligne 1. Conserver l'ordre des rubriques, même si certaines restent vides. Dépôt en PDF dans l'application e-valuation.}
+% ─── Titre ───────────────────────────────────────────────────────────────────
+\begin{tcolorbox}[enhanced, sharp corners, boxrule=0pt, colback=cnrsclair,
+    borderline west={4pt}{0pt}{cnrs}, left=14pt, right=10pt, top=10pt, bottom=10pt]
+  {\footnotesize\color{cnrs}\MakeUppercase{Comité national de la recherche scientifique}}\par\vspace{3pt}
+  {\LARGE\bfseries\color{cnrs}Rapport d'activité}\par\vspace{2pt}
+  {\large Évaluation à mi-vague --- 5 derniers semestres}\par\medskip
+  {\small
+  \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X >{\bfseries}l X@{}}
+    Nom & \Nom & Grade & \Grade \\
+    Unité & \Unite & Section & \SectionCN \\
+    Période & \Periode & & \\
+  \end{tabularx}}
+\end{tcolorbox}
 
+\begin{consigne}
+Période de référence : les 5 derniers semestres, indiquée dans le courriel d'ouverture de la campagne d'évaluation. Mise en forme : Arial 10, interligne 1. Conserver l'ordre des rubriques, même si certaines restent vides. Dépôt en PDF dans l'application e-valuation.
+\end{consigne}
+
+
+% ────────────────────────────────────────────────────────────────────────────
 \section{Curriculum vitæ}
-\consigne{Votre curriculum vitæ.}
+\begin{consigne}
+Votre curriculum vitæ.
+\end{consigne}
+\arediger % Votre texte ici
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Résumé de votre activité}
-\consigne{Résumé (1/2 page) qui permettra à l'ensemble des membres de la Section et/ou CID de prendre connaissance de votre profil scientifique.}
+\begin{consigne}
+Résumé (1/2 page) qui permettra à l'ensemble des membres de la Section et/ou CID de prendre connaissance de votre profil scientifique.
+\end{consigne}
+\arediger % Votre texte ici
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Rapport d'activité}
-\consigne{Vous présenterez de manière critique, en 15 pages maximum, les éléments suivants, en veillant à faire ressortir la valeur et l'influence de votre travail sur l'avancée des connaissances dans votre domaine :}
+\begin{consigne}
+Vous présenterez de manière critique, en 15 pages maximum, les éléments suivants, en veillant à faire ressortir la valeur et l'influence de votre travail sur l'avancée des connaissances dans votre domaine :
 \begin{itemize}
-  \item \consigne{votre activité de recherche au cours des 5 derniers semestres, les facteurs qui ont guidé vos choix, les résultats obtenus, leur portée et leur impact, et les éventuelles difficultés rencontrées ;}
-  \item \consigne{votre participation à des collaborations avec des partenaires académiques, contractuelles ou non, dans un cadre français, européen ou international (préciser votre rôle, les partenaires, les thèmes des travaux et leur impact) ;}
-  \item \consigne{vos participations à des contrats de recherche (ANR, contrats européens, autres agences) : intitulé long, acronyme, durée, partenaires et montants, nature de vos responsabilités (PI, co-PI, Work Package Manager), thème et contenu des travaux, portée et impact ;}
-  \item \consigne{la place de votre recherche dans celle de votre unité, du point de vue des thématiques et des équipes (éventuellement sous forme d'organigramme) ;}
-  \item \consigne{vos mobilités éventuelles, géographiques, thématiques ou fonctionnelles (séjours dans d'autres laboratoires publics ou privés, en France, en Europe ou à l'étranger, et leurs apports) ;}
-  \item \consigne{les distinctions scientifiques reçues et les contributions qu'elles ont récompensées.}
+  \item votre activité de recherche au cours des 5 derniers semestres, les facteurs qui ont guidé vos choix, les résultats obtenus, leur portée et leur impact, et les éventuelles difficultés rencontrées ;
+  \item votre participation à des collaborations avec des partenaires académiques, contractuelles ou non, dans un cadre français, européen ou international (préciser votre rôle, les partenaires, les thèmes des travaux et leur impact) ;
+  \item vos participations à des contrats de recherche (ANR, contrats européens, autres agences) : intitulé long, acronyme, durée, partenaires et montants, nature de vos responsabilités (PI, co-PI, Work Package Manager), thème et contenu des travaux, portée et impact ;
+  \item la place de votre recherche dans celle de votre unité, du point de vue des thématiques et des équipes (éventuellement sous forme d'organigramme) ;
+  \item vos mobilités éventuelles, géographiques, thématiques ou fonctionnelles (séjours dans d'autres laboratoires publics ou privés, en France, en Europe ou à l'étranger, et leurs apports) ;
+  \item les distinctions scientifiques reçues et les contributions qu'elles ont récompensées.
 \end{itemize}
+\end{consigne}
+\arediger % Votre texte ici
+
 \subsection*{Productions scientifiques (5 au maximum)}
-\consigne{Classez vos productions par ordre d'importance. Pour chacune, expliquez sa portée, son impact et votre contribution personnelle, et donnez le lien vers la production elle-même dans HAL (ou une autre archive ouverte).}
-\begin{enumerate}
-  \item \consigne{Référence complète — lien HAL}\\ \consigne{Portée, impact et contribution personnelle : …}
-  \item \consigne{Référence complète — lien HAL}\\ \consigne{Portée, impact et contribution personnelle : …}
-\end{enumerate}
+\begin{consigne}
+Classez vos productions par ordre d'importance. Pour chacune, expliquez sa portée, son impact et votre contribution personnelle, et donnez le lien vers la production elle-même dans HAL (ou une autre archive ouverte).
+\end{consigne}
+\production{Auteurs, « Titre », \emph{Revue}, volume (année), pages.}
+  {https://hal.science/hal-00000000}
+  {Portée, impact et contribution personnelle.}
+\production{Auteurs, « Titre », \emph{Revue}, volume (année), pages.}
+  {https://hal.science/hal-00000001}
+  {Portée, impact et contribution personnelle.}
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Enseignement, formation et diffusion de la culture scientifique}
-\consigne{Pour les 5 derniers semestres :}
+\begin{consigne}
+Pour les 5 derniers semestres :
 \begin{itemize}
-  \item \consigne{thèses dirigées et post-doctorats encadrés (noms, sujets, part prise dans l'encadrement, contenu et portée des travaux, devenir des docteurs et post-doctorants) ;}
-  \item \consigne{participations à l'enseignement (niveau, titres des cours, établissements, nombre annuel d'heures) ;}
-  \item \consigne{implication dans le partage, le management ou la publication des données de la recherche ;}
-  \item \consigne{organisation de conférences, workshops, congrès et rencontres « portes ouvertes » ;}
-  \item \consigne{revues ou ouvrages de vulgarisation et diffusion de l'information scientifique vers des publics non spécialistes ;}
-  \item \consigne{interventions dans la presse écrite et audiovisuelle ;}
-  \item \consigne{travaux d'expertise ;}
-  \item \consigne{autres.}
+  \item thèses dirigées et post-doctorats encadrés (noms, sujets, part prise dans l'encadrement, contenu et portée des travaux, devenir des docteurs et post-doctorants) ;
+  \item participations à l'enseignement (niveau, titres des cours, établissements, nombre annuel d'heures) ;
+  \item implication dans le partage, le management ou la publication des données de la recherche ;
+  \item organisation de conférences, workshops, congrès et rencontres « portes ouvertes » ;
+  \item revues ou ouvrages de vulgarisation et diffusion de l'information scientifique vers des publics non spécialistes ;
+  \item interventions dans la presse écrite et audiovisuelle ;
+  \item travaux d'expertise ;
+  \item autres.
 \end{itemize}
+\end{consigne}
+\arediger % Votre texte ici
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Transfert technologique, relations industrielles et valorisation}
-\consigne{Pour les 5 derniers semestres :}
+\begin{consigne}
+Pour les 5 derniers semestres :
 \begin{itemize}
-  \item \consigne{contrats industriels et autres (durée, financeurs, partenaires et montants, nature de vos responsabilités, thème, contenu, portée et impact des travaux) ;}
-  \item \consigne{projets de création d'entreprises ;}
-  \item \consigne{travaux donnant lieu à des brevets ou à des développements de logiciels (votre rôle, contenu, difficultés rencontrées, impact) ;}
-  \item \consigne{activités de consultance (destinataires, temps passé) ; distinctions reçues pour des activités de transfert ou de valorisation ;}
-  \item \consigne{autres.}
+  \item contrats industriels et autres (durée, financeurs, partenaires et montants, nature de vos responsabilités, thème, contenu, portée et impact des travaux) ;
+  \item projets de création d'entreprises ;
+  \item travaux donnant lieu à des brevets ou à des développements de logiciels (votre rôle, contenu, difficultés rencontrées, impact) ;
+  \item activités de consultance (destinataires, temps passé) ; distinctions reçues pour des activités de transfert ou de valorisation ;
+  \item autres.
 \end{itemize}
+\end{consigne}
+\arediger % Votre texte ici
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Encadrement, animation et management de la recherche}
-\consigne{Pour les 5 derniers semestres, en mettant en lumière la manière d'exercer vos responsabilités, vos constats et les difficultés éventuelles rencontrées :}
+\begin{consigne}
+Pour les 5 derniers semestres, en mettant en lumière la manière d'exercer vos responsabilités, vos constats et les difficultés éventuelles rencontrées :
 \begin{itemize}
-  \item \consigne{animation de programmes ou projets français, européens ou internationaux (type, objectif, ampleur, impact) ;}
-  \item \consigne{direction d'équipe ou de laboratoire (nombre de personnes) ;}
-  \item \consigne{autres responsabilités ou activités collectives (management de la recherche, missions d'intérêt général, conseils scientifiques, commissions, comités de lecture, etc.) ;}
-  \item \consigne{autres.}
+  \item animation de programmes ou projets français, européens ou internationaux (type, objectif, ampleur, impact) ;
+  \item direction d'équipe ou de laboratoire (nombre de personnes) ;
+  \item autres responsabilités ou activités collectives (management de la recherche, missions d'intérêt général, conseils scientifiques, commissions, comités de lecture, etc.) ;
+  \item autres.
 \end{itemize}
+\end{consigne}
+\arediger % Votre texte ici
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Objectifs / Projet de recherche}
-\consigne{Sans objet pour une évaluation à mi-vague (rubrique conservée pour respecter le plan).}
+Sans objet pour une évaluation à mi-vague (rubrique conservée pour respecter le plan).
 
+% ────────────────────────────────────────────────────────────────────────────
 \section{Observations éventuelles}
-\consigne{Observations que vous souhaitez porter à la connaissance de votre Section et/ou CID (1/2 page).}
+\begin{consigne}
+Observations que vous souhaitez porter à la connaissance de votre Section et/ou CID (1/2 page).
+\end{consigne}
+\arediger % Votre texte ici
 
 \end{document}

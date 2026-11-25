@@ -190,66 +190,156 @@ def tex_esc(s):
     return s.replace('\\textbackslash\\{\\}', '\\textbackslash{}')
 
 
+PREAMBULE = r"""%% ─────────────────────────────────────────────────────────────────────────────
+%% Modèle de rapport d'activité — @TITRE@ (CNRS, Comité national)
+%% @SOURCE@
+%% Compiler avec pdflatex (ou Overleaf). Complétez d'abord le bloc « À COMPLÉTER ».
+%% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\frenchsetup{StandardLists=true}
+\usepackage[a4paper,top=2.3cm,bottom=2.2cm,left=2.1cm,right=2.1cm,headheight=14pt]{geometry}
+
+%% Police à empattement classique de LaTeX (Latin Modern), plus confortable à la lecture.
+\usepackage{lmodern}
+%% Les consignes officielles demandent « Arial 10 » : pour s'y conformer strictement,
+%% remplacer la ligne ci-dessus par les deux suivantes.
+%% \usepackage[scaled=0.95]{helvet}
+%% \renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{microtype,xcolor,enumitem,titlesec,fancyhdr,lastpage,tabularx,comment}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%% ═══ À COMPLÉTER ═══════════════════════════════════════════════════════════
+\newcommand{\Nom}{Prénom NOM}
+\newcommand{\Grade}{CRCN}
+\newcommand{\Unite}{UMR 0000 --- Nom du laboratoire}
+\newcommand{\SectionCN}{Section 18 --- Chimie et vivant}
+\newcommand{\Periode}{semestre 20.. --- semestre 20..}
+
+%% Consignes officielles (encadrés gris) : \consignestrue pour les afficher,
+%% \consignesfalse pour les masquer une fois le rapport rédigé.
+\newif\ifconsignes
+\consignestrue
+%% ═══════════════════════════════════════════════════════════════════════════
+
+\definecolor{cnrs}{HTML}{22397F}
+\definecolor{cnrsclair}{HTML}{EEF1FA}
+\definecolor{gris}{HTML}{6B7280}
+\hypersetup{colorlinks, linkcolor=cnrs, urlcolor=cnrs, pdftitle={Rapport d'activité}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlist{topsep=2pt,itemsep=1pt,leftmargin=1.3em}
+
+%% Intertitres : numéro en pastille, filet léger dessous
+\titleformat{\section}{\large\bfseries\color{cnrs}}
+  {\colorbox{cnrs}{\makebox[0.9em]{\color{white}\thesection}}}{0.6em}{}
+  [{\color{cnrs!25}\titlerule[0.6pt]}]
+\titlespacing*{\section}{0pt}{1.5em}{0.5em}
+\titleformat{\subsection}{\normalsize\bfseries\color{cnrs}}{}{0em}{}
+\titlespacing*{\subsection}{0pt}{1em}{0.3em}
+
+%% En-tête et pied de page
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gris}Rapport d'activité --- \Nom}
+\fancyhead[R]{\small\color{gris}@TITRE@}
+\fancyfoot[C]{\small\color{gris}\thepage\,/\,\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\headrule}{{\color{gris!40}\hrule width\headwidth height\headrulewidth}}
+
+%% Consignes : encadré gris, ou rien du tout avec \consignesfalse
+\ifconsignes
+  \newtcolorbox{consigne}{enhanced, breakable, sharp corners, boxrule=0pt,
+    colback=gris!7, borderline west={2pt}{0pt}{cnrs!45},
+    left=8pt, right=6pt, top=4pt, bottom=4pt, before skip=4pt, after skip=8pt,
+    fontupper=\small\itshape\color{gris!90!black}}
+\else
+  \excludecomment{consigne}
+\fi
+
+%% Emplacement de votre texte
+\newcommand{\arediger}{\textcolor{gris}{[À rédiger]}}
+
+%% Production scientifique : \production{référence}{lien HAL}{portée, impact, contribution}
+\newcounter{production}
+\newcommand{\production}[3]{%
+  \refstepcounter{production}%
+  \begin{tcolorbox}[enhanced, breakable, arc=2pt, boxrule=0.4pt, colframe=cnrs!25, colback=white,
+      left=7pt, right=7pt, top=4pt, bottom=5pt, before skip=4pt, after skip=6pt]
+    {\bfseries\color{cnrs}\theproduction.}~#1\par
+    {\small\url{#2}}\par\smallskip
+    #3
+  \end{tcolorbox}}
+
+\begin{document}
+
+%% ─── Titre ───────────────────────────────────────────────────────────────────
+\begin{tcolorbox}[enhanced, sharp corners, boxrule=0pt, colback=cnrsclair,
+    borderline west={4pt}{0pt}{cnrs}, left=14pt, right=10pt, top=10pt, bottom=10pt]
+  {\footnotesize\color{cnrs}\MakeUppercase{Comité national de la recherche scientifique}}\par\vspace{3pt}
+  {\LARGE\bfseries\color{cnrs}Rapport d'activité}\par\vspace{2pt}
+  {\large @TITRE_LONG@}\par\medskip
+  {\small
+  \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X >{\bfseries}l X@{}}
+    Nom & \Nom & Grade & \Grade \\
+    Unité & \Unite & Section & \SectionCN \\
+    Période & \Periode & & \\
+  \end{tabularx}}
+\end{tcolorbox}
+
+\begin{consigne}
+@CONSIGNE_GENERALE@
+\end{consigne}
+"""
+
+
 def latex(nom, v):
-    L = [
-        "% Modèle de rapport d'activité — " + v['titre'] + ' (CNRS, Comité national).',
-        '% ' + SOURCE,
-        "% Remplacer les \\consigne{…} par votre texte, puis compiler avec pdflatex (ou Overleaf).",
-        '\\documentclass[10pt,a4paper]{article}',
-        '\\usepackage[utf8]{inputenc}',
-        '\\usepackage[T1]{fontenc}',
-        '\\usepackage[french]{babel}',
-        '\\frenchsetup{StandardLists=true}',
-        '\\usepackage[a4paper,margin=2cm]{geometry}',
-        '\\usepackage{helvet}            % Arial ou équivalent, comme demandé',
-        '\\renewcommand{\\familydefault}{\\sfdefault}',
-        '\\usepackage{xcolor,enumitem,titlesec,hyperref}',
-        '\\definecolor{cnrs}{HTML}{22397F}',
-        '\\definecolor{consigne}{HTML}{6B7280}',
-        '\\setlength{\\parindent}{0pt}',
-        '\\setlength{\\parskip}{0.4em}',
-        '\\setlist{topsep=2pt,itemsep=1pt}',
-        '\\titleformat{\\section}{\\large\\bfseries\\color{cnrs}}{\\thesection.}{0.5em}{}',
-        '\\titleformat{\\subsection}{\\normalsize\\bfseries\\color{cnrs}}{}{0em}{}',
-        '\\newcommand{\\consigne}[1]{{\\color{consigne}\\itshape #1}}',
-        '',
-        '\\begin{document}',
-        '',
-        "{\\LARGE\\bfseries\\color{cnrs} Rapport d'activité --- " + tex_esc(v['titre']) + '}\\par\\medskip',
-        '\\textbf{Nom, prénom :} …\\par',
-        '\\textbf{Grade :} …\\par',
-        '\\textbf{Unité (UMR) :} …\\par',
-        '\\textbf{Section(s) / CID :} …\\par',
-        '\\textbf{Période de référence :} …\\par\\medskip',
-        "\\consigne{Période de référence : les " + v['semestres'] + " derniers semestres, indiquée dans le courriel "
-        "d'ouverture de la campagne d'évaluation. Mise en forme : Arial 10, interligne 1. Conserver l'ordre des "
-        "rubriques, même si certaines restent vides. Dépôt en PDF dans l'application e-valuation.}",
-        '',
-    ]
+    titre_long = v['titre'][0].upper() + v['titre'][1:] + ' --- ' + v['semestres'] + ' derniers semestres'
+    L = [PREAMBULE.replace('%%', '%')
+         .replace('@TITRE@', v['titre'][0].upper() + v['titre'][1:])
+         .replace('@TITRE_LONG@', tex_esc(titre_long).replace('---', '---'))
+         .replace('@SOURCE@', SOURCE)
+         .replace('@CONSIGNE_GENERALE@', tex_esc(
+             "Période de référence : les " + v['semestres'] + " derniers semestres, indiquée dans le courriel "
+             "d'ouverture de la campagne d'évaluation. Mise en forme : Arial 10, interligne 1. Conserver l'ordre "
+             "des rubriques, même si certaines restent vides. Dépôt en PDF dans l'application e-valuation."))]
+
+    def bloc_consigne(lignes, puces=()):
+        out = ['\\begin{consigne}'] + lignes
+        if puces:
+            out += ['\\begin{itemize}'] + ['  \\item ' + p for p in puces] + ['\\end{itemize}']
+        return out + ['\\end{consigne}']
+
     for r in RUBRIQUES:
+        L.append('')
+        L.append('%% ' + '─' * 76)
         L.append('\\section{' + tex_esc(r['titre']) + '}')
         if r.get('projet') and not v['projet']:
-            L.append('\\consigne{' + tex_esc(r['sans_objet']) + '}')
-            L.append('')
+            L.append(tex_esc(r['sans_objet']))
             continue
-        for c in r['consignes']:
-            L.append('\\consigne{' + tex_esc(remplir(c, v)) + '}')
-        if r.get('puces'):
-            L.append('\\begin{itemize}')
-            L += ['  \\item \\consigne{' + tex_esc(remplir(pu, v)) + '}' for pu in r['puces']]
-            L.append('\\end{itemize}')
+        L += bloc_consigne([tex_esc(remplir(c, v)) for c in r['consignes']],
+                           [tex_esc(remplir(p, v)) for p in r.get('puces', [])])
+        L.append('\\arediger % Votre texte ici')
         if 'sous' in r:
             so = r['sous']
+            L.append('')
             L.append('\\subsection*{' + tex_esc(remplir(so['titre'], v)) + '}')
-            for c in so['consignes']:
-                L.append('\\consigne{' + tex_esc(remplir(c, v)) + '}')
-            L.append('\\begin{enumerate}')
-            L += ['  \\item \\consigne{' + tex_esc(so['modele'][0]) + '}\\\\ \\consigne{' + tex_esc(so['modele'][1]) + '}'] * 2
-            L.append('\\end{enumerate}')
-        L.append('')
-    L += ['\\end{document}', '']
+            L += bloc_consigne([tex_esc(remplir(c, v)) for c in so['consignes']])
+            L += ['\\production{Auteurs, « Titre », \\emph{Revue}, volume (année), pages.}',
+                  '  {https://hal.science/hal-00000000}',
+                  '  {Portée, impact et contribution personnelle.}',
+                  '\\production{Auteurs, « Titre », \\emph{Revue}, volume (année), pages.}',
+                  '  {https://hal.science/hal-00000001}',
+                  '  {Portée, impact et contribution personnelle.}']
+    L += ['', '\\end{document}', '']
+    texte = '\n'.join(L).replace('%% ─', '% ─')
     with open(os.path.join(SORTIE, nom + '.tex'), 'w', encoding='utf-8') as f:
-        f.write('\n'.join(L))
+        f.write(texte)
 
 
 if __name__ == '__main__':
